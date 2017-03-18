@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_news"
+            android:icon="@mipmap/menu_arr_normal"
+            android:title="新闻" />
+        <item
+            android:id="@+id/nav_theme"
+            android:icon="@mipmap/menu_arr_normal"
+            android:title="专题" />
+        <item
+            android:id="@+id/nav_pics"
+            android:icon="@mipmap/menu_arr_normal"
+            android:title="组图" />
+        <item
+            android:id="@+id/nav_chat"
+            android:icon="@mipmap/menu_arr_normal"
+            android:title="互动" />
+    </group>
+
+</menu>
