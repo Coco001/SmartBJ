@@ -3,6 +3,7 @@ package com.coco.smartbj.activity;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.graphics.Color;
+import android.graphics.drawable.Icon;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
@@ -68,7 +69,20 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         nav_view.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                Toast.makeText(MyApplication.context, "" + item.toString(), Toast.LENGTH_LONG).show();
+                switch (item.getItemId()) {
+                    case R.id.nav_news:
+
+                        break;
+                    case R.id.nav_theme:
+
+                        break;
+                    case R.id.nav_pics:
+
+                        break;
+                    case R.id.nav_chat:
+
+                        break;
+                }
                 return true;
             }
         });
@@ -87,6 +101,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         main_toolbar = (Toolbar) findViewById(R.id.main_toolbar);
         setSupportActionBar(main_toolbar);
         nav_view = (NavigationView) findViewById(R.id.nav_view);
+        nav_view.setItemIconTintList(null);
         iv_main_home = (ImageView) findViewById(R.id.iv_main_home);
         tv_main_home = (TextView) findViewById(R.id.tv_main_home);
         iv_main_news = (ImageView) findViewById(R.id.iv_main_news);

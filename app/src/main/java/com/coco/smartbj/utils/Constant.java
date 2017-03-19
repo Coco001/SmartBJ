@@ -6,7 +6,8 @@ package com.coco.smartbj.utils;
 
 public  interface Constant {
     //apk发布修改该ip ip 或者 域名 www.henhao.com/zhbj/categories.json
-    String SERVERURL = "http://10.0.2.2:8080/zhbj";
+    String IP = "192.168.1.201";
+    String SERVERURL = "http://" + IP + ":8080/zhbj";//http://
     String NEWSCENTERURL = SERVERURL + "/categories.json";
     String PHOTOSURL = SERVERURL + "/photos/photos_1.json";
     String CONFIGFILE = "cachevalue";//sp的文件名
