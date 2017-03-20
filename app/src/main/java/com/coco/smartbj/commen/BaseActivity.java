@@ -17,8 +17,8 @@ public abstract class BaseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(getLayoutId());
         ActivityManager.getActivityManager().add(this);
-        initTitle();
         initData();
+        initTitle();
         initEvent();
     }
 
