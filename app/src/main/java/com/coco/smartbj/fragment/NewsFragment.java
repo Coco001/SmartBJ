@@ -14,6 +14,7 @@ import com.alibaba.fastjson.JSON;
 import com.coco.smartbj.R;
 import com.coco.smartbj.bean.NewsCenterData;
 import com.coco.smartbj.commen.BaseFragment;
+import com.coco.smartbj.newstpipage.TPINewsCenterPager;
 import com.coco.smartbj.utils.Constant;
 import com.coco.smartbj.utils.HttpUtil;
 import com.coco.smartbj.utils.MyApplication;
@@ -31,12 +32,11 @@ import okhttp3.Response;
  */
 
 public class NewsFragment extends BaseFragment {
-    private static final String TAG = "NewsFragment";
     private TabLayout mTabLayout;
     private List<String> mTitleText;
     private ViewPager mViewPager;
-    private List<String> mPagerText;
     private List<NewsCenterData.NewsData.ViewTagData> mDatas = new ArrayList<>();
+    private NewsCenterData mNewsCenterData;
 
     Handler mHandler = new Handler(new Handler.Callback() {
         @Override
@@ -50,12 +50,10 @@ public class NewsFragment extends BaseFragment {
             return true;
         }
     });
-    private NewsCenterData mNewsCenterData;
 
     @Override
     protected void initData() {
         mTitleText = new ArrayList<>();
-        mPagerText = new ArrayList<>();
         mTabLayout = (TabLayout) getActivity().findViewById(R.id.indicator_title);
         mViewPager = (ViewPager) getActivity().findViewById(R.id.indicator_pager);
         //首先检查本地是否有数据
@@ -67,7 +65,6 @@ public class NewsFragment extends BaseFragment {
             HttpUtil.sendOkHttpRequest(Constant.NEWSCENTERURL, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    Log.d(TAG, "onFailure: " + e);
                 }
 
                 @Override
@@ -122,11 +119,10 @@ public class NewsFragment extends BaseFragment {
 
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
-            TextView tv = new TextView(MyApplication.context);
-            tv.setText(mTitleText.get(position));
-            tv.setTextSize(25);
-            container.addView(tv);
-            return tv;
+            TPINewsCenterPager newsCenterPager = new TPINewsCenterPager(MyApplication.context, mDatas.get(position));
+            View view = newsCenterPager.getRootView();
+            container.addView(view);
+            return view;
         }
 
         @Override
