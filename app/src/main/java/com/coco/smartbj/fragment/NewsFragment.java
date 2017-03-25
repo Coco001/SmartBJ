@@ -1,15 +1,14 @@
 package com.coco.smartbj.fragment;
 
+import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import com.alibaba.fastjson.JSON;
 import com.coco.smartbj.R;
 import com.coco.smartbj.bean.NewsCenterData;
@@ -119,7 +118,8 @@ public class NewsFragment extends BaseFragment {
 
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
-            TPINewsCenterPager newsCenterPager = new TPINewsCenterPager(MyApplication.context, mDatas.get(position));
+            Activity activity = getActivity();
+            TPINewsCenterPager newsCenterPager = new TPINewsCenterPager(activity, mDatas.get(position));
             View view = newsCenterPager.getRootView();
             container.addView(view);
             return view;

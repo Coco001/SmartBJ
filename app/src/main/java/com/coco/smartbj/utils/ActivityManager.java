@@ -62,4 +62,15 @@ public class ActivityManager {
     public int size(){
         return mActivities.size();
     }
+
+    //返回指定的activity
+    public Activity getActivity(Activity activity) {
+        for (int i = mActivities.size() - 1;i >= 0;i--){
+            Activity a = mActivities.get(i);
+            if (a.equals(activity)) {
+                return a;
+            }
+        }
+        return null;
+    }
 }

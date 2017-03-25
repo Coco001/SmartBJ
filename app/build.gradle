@@ -33,4 +33,5 @@ dependencies {
     compile 'com.google.code.gson:gson:2.7'
     compile 'com.youth.banner:banner:1.4.9'
     compile 'com.squareup.picasso:picasso:2.5.2'
+    compile 'xiao.free.refreshlayout:refreshlayoutlib:v1.0.0'
 }

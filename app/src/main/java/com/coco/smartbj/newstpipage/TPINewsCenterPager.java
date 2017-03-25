@@ -6,9 +6,9 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
@@ -28,29 +28,33 @@ import com.youth.banner.BannerConfig;
 import com.youth.banner.Transformer;
 import com.youth.banner.listener.OnBannerListener;
 import com.youth.banner.loader.ImageLoader;
-import com.youth.banner.transformer.ScaleInOutTransformer;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
+import xiao.free.refreshlayoutlib.SwipeRefreshLayout;
+import xiao.free.refreshlayoutlib.base.OnLoadMoreListener;
+import xiao.free.refreshlayoutlib.base.OnRefreshListener;
 
 /**
  * 新闻中心页签对应的页面
  */
 
-public class TPINewsCenterPager {
+public class TPINewsCenterPager implements OnRefreshListener, OnLoadMoreListener {
     private Context mContext;
     private NewsCenterData.NewsData.ViewTagData mViewTagData;
-    private View mRoot;
-    private Banner news_banner;
-    private ListView list;
+
+    private SwipeRefreshLayout mRefreshLayout;//刷新的根组件
+    private ListView mListView;//刷新的list，在该组件中添加banner
+    private Banner mBanner;//被添加的banner
+
     private TPINewsData mTpiNewsData;
     private TPINewsData mData = new TPINewsData();
     private List<TPINewsData.TPINewsData_Data.TPINewsData_Data_ListNewsData> mNews;
     private ListNewsAdapter mListNewsAdapter;
+
     Handler mHandler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
@@ -64,17 +68,20 @@ public class TPINewsCenterPager {
         }
     });
 
+
     public TPINewsCenterPager(Context context, NewsCenterData.NewsData.ViewTagData data) {
         mContext = context;
         mViewTagData = data;
         initView();
+        mRefreshLayout.setOnRefreshListener(this);
+        mRefreshLayout.setOnLoadMoreListener(this);
+
         initData();
     }
 
     private void initEvent(TPINewsData data) {
         //处理数据
         processData(data);
-
     }
 
     private void processData(TPINewsData data) {
@@ -88,8 +95,7 @@ public class TPINewsCenterPager {
         mNews = data.data.news;
         //创建新闻list的适配器
         mListNewsAdapter = new ListNewsAdapter();
-        list.setAdapter(mListNewsAdapter);
-
+        mListView.setAdapter(mListNewsAdapter);
         mListNewsAdapter.notifyDataSetChanged();
     }
 
@@ -102,28 +108,63 @@ public class TPINewsCenterPager {
             titles.add(topnews.get(i).title);
         }
         //设置banner样式
-        news_banner.setBannerStyle(BannerConfig.CIRCLE_INDICATOR_TITLE_INSIDE);
+        mBanner.setBannerStyle(BannerConfig.CIRCLE_INDICATOR_TITLE_INSIDE);
         //设置图片加载器
-        news_banner.setImageLoader(new GlideImageLoader());
-        news_banner.setImages(imagesUrl);
+        mBanner.setImageLoader(new GlideImageLoader());
+        mBanner.setImages(imagesUrl);
         //设置banner动画效果
-        news_banner.setBannerAnimation(Transformer.Accordion);
+        mBanner.setBannerAnimation(Transformer.Accordion);
         //设置标题集合（当banner样式有显示title时）
-        news_banner.setBannerTitles(titles);
+        mBanner.setBannerTitles(titles);
         //设置自动轮播，默认为true
-        news_banner.isAutoPlay(true);
+        mBanner.isAutoPlay(true);
         //设置轮播时间
-        news_banner.setDelayTime(2000);
+        mBanner.setDelayTime(2000);
         //设置指示器位置（当banner模式中有指示器时）
-        news_banner.setIndicatorGravity(BannerConfig.RIGHT);
-        news_banner.setOnBannerListener(new OnBannerListener() {
+        mBanner.setIndicatorGravity(BannerConfig.RIGHT);
+        mBanner.setOnBannerListener(new OnBannerListener() {
             @Override
             public void OnBannerClick(int position) {
 
             }
         });
         //banner设置方法全部调用完毕时最后调用
-        news_banner.start();
+        mBanner.start();
+    }
+
+    @Override
+    public void onLoadMore() {
+        List<TPINewsData.TPINewsData_Data.TPINewsData_Data_ListNewsData> newTitles = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            newTitles.add(mNews.get(i));
+        }
+        mNews.addAll(newTitles);
+        mRefreshLayout.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mRefreshLayout.setLoadingMore(false);
+                mListNewsAdapter.notifyDataSetChanged();
+            }
+        }, 1000);
+    }
+
+    @Override
+    public void onRefresh() {
+        List<TPINewsData.TPINewsData_Data.TPINewsData_Data_ListNewsData> newTitles = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            newTitles.add(mNews.get(i));
+        }
+        newTitles.addAll(mNews);
+        mNews.removeAll(mNews);
+        mNews.addAll(newTitles);
+
+        mRefreshLayout.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mRefreshLayout.setRefreshing(false);
+                mListNewsAdapter.notifyDataSetChanged();
+            }
+        }, 1000);
     }
 
     public class GlideImageLoader extends ImageLoader {
@@ -174,20 +215,25 @@ public class TPINewsCenterPager {
 
     private void initView() {
         //获取页签对应页面的根布局
-        mRoot = View.inflate(mContext, R.layout.fragment_news_banner, null);
-        View mBanner = View.inflate(mContext, R.layout.banner_item, null);
-        list = (ListView) mRoot.findViewById(R.id.list);
-        news_banner = (Banner) mBanner.findViewById(R.id.news_banner);
+        LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mRefreshLayout = (SwipeRefreshLayout) inflater.inflate(R.layout.fragment_news_list, null);
+        mListView = (ListView) mRefreshLayout.findViewById(R.id.swipe_target);
+        //获取banner组件的view
+        View inflate = inflater.inflate(R.layout.banner_item, null);
         //获取屏幕的尺寸
         DisplayMetrics size = Uiutils.getScreenSize(mContext);
         //设置banner的尺寸
-        AbsListView.LayoutParams params = new AbsListView.LayoutParams(size.widthPixels, size.heightPixels / 2);
-        news_banner.setLayoutParams(params);
-        list.addHeaderView(mBanner);
+        AbsListView.LayoutParams params = new AbsListView.LayoutParams(size.widthPixels, size.heightPixels / 3);
+        inflate.setLayoutParams(params);
+
+        mBanner = (Banner) inflate.findViewById(R.id.news_banner);
+        //将banner添加到mSwipeRefreshLayout的头部
+        mListView.addHeaderView(mBanner);
     }
 
+
     public View getRootView() {
-        return mRoot;
+        return mRefreshLayout;
     }
 
     //listview的适配器
@@ -210,7 +256,7 @@ public class TPINewsCenterPager {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            ViewHolder holder = null;
+            ViewHolder holder;
             if (convertView == null) {
                 convertView = View.inflate(mContext, R.layout.tpi_news_listview_item, null);
                 holder = new ViewHolder();
