@@ -1,21 +1,26 @@
 package com.coco.smartbj.newstpipage;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
+import android.text.method.CharacterPickerDialog;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import com.alibaba.fastjson.JSON;
 import com.coco.smartbj.R;
+import com.coco.smartbj.activity.NewsDetailActivity;
 import com.coco.smartbj.bean.NewsCenterData;
 import com.coco.smartbj.bean.TPINewsData;
 import com.coco.smartbj.utils.Constant;
@@ -54,7 +59,6 @@ public class TPINewsCenterPager implements OnRefreshListener, OnLoadMoreListener
     private TPINewsData mData = new TPINewsData();
     private List<TPINewsData.TPINewsData_Data.TPINewsData_Data_ListNewsData> mNews;
     private ListNewsAdapter mListNewsAdapter;
-
     Handler mHandler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
@@ -82,6 +86,32 @@ public class TPINewsCenterPager implements OnRefreshListener, OnLoadMoreListener
     private void initEvent(TPINewsData data) {
         //处理数据
         processData(data);
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                //获取当前新闻的连接
+                TPINewsData.TPINewsData_Data.TPINewsData_Data_ListNewsData tpiNewsData_Data_ListNewsData = mNews.get(position);
+                String newsurl = tpiNewsData_Data_ListNewsData.url;
+                String newsid = tpiNewsData_Data_ListNewsData.id;//获取新闻的id
+
+                //获取新闻的标记 id
+                String readIDs = Sptools.getString(mContext, Constant.READNEWSIDS, null);
+                if (TextUtils.isEmpty(readIDs)) {
+                    readIDs = newsid;//保存当前新闻的id
+                } else {
+                    readIDs += "," + (Integer.parseInt(newsid)-1);//添加保存新闻id
+                }
+                //重新保存读过的新闻的id
+                Sptools.setString(mContext,Constant.READNEWSIDS, readIDs);
+                // 修改读过的新闻字体颜色
+                //告诉界面更新
+                mListNewsAdapter.notifyDataSetChanged();
+                //跳转到新闻页面显示新闻
+                Intent newsActivity = new Intent(mContext, NewsDetailActivity.class);
+                newsActivity.putExtra("newsurl", newsurl);
+                mContext.startActivity(newsActivity);
+            }
+        });
     }
 
     private void processData(TPINewsData data) {
@@ -170,7 +200,7 @@ public class TPINewsCenterPager implements OnRefreshListener, OnLoadMoreListener
     public class GlideImageLoader extends ImageLoader {
         @Override
         public void displayImage(Context context, Object path, ImageView imageView) {
-            //Picasso 加载图片简单用法
+            //Picasso 加载图片
             Picasso.with(context).load((String) path).into(imageView);
         }
     }
@@ -230,7 +260,6 @@ public class TPINewsCenterPager implements OnRefreshListener, OnLoadMoreListener
         //将banner添加到mSwipeRefreshLayout的头部
         mListView.addHeaderView(mBanner);
     }
-
 
     public View getRootView() {
         return mRefreshLayout;

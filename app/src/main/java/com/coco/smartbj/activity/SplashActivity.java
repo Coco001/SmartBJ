@@ -30,6 +30,11 @@ public class SplashActivity extends BaseActivity {
     }
 
     @Override
+    protected void initView() {
+
+    }
+
+    @Override
     protected void initEvent() {
         mAs.setAnimationListener(new Animation.AnimationListener() {
             @Override

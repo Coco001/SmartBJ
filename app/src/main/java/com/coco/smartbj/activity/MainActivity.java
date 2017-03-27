@@ -71,6 +71,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     };
 
     @Override
+    protected void initView() {
+
+    }
+
+    @Override
     protected void initEvent() {
         nav_view.setCheckedItem(R.id.nav_news);
         nav_view.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {

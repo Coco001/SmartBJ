@@ -17,10 +17,13 @@ public abstract class BaseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(getLayoutId());
         ActivityManager.getActivityManager().add(this);
+        initView();
         initData();
         initTitle();
         initEvent();
     }
+
+    protected abstract void initView();
 
     protected abstract void initEvent();
 

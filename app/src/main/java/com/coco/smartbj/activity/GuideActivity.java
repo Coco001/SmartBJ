@@ -36,6 +36,11 @@ public class GuideActivity extends BaseActivity {
     private float offset;
 
     @Override
+    protected void initView() {
+
+    }
+
+    @Override
     protected void initEvent() {
         //设置监听布局完成的事件
         v_guide_redpoint.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
